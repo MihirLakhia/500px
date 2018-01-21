@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/abc_action_bar_content_inset_material">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Enter Description about your task."
+        />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/et_desc"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+        android:layout_marginTop="30dp"
+        android:maxLength="1000"
+        android:background="@drawable/abc_edit_text_material"
+        android:backgroundTint="@color/colorPrimary"
+        android:hint="Photo type"
+        android:padding="10dp"
+        android:inputType="textCapSentences"
+        />
+</LinearLayout>

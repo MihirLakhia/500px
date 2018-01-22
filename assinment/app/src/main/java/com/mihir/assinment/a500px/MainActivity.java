@@ -1,14 +1,12 @@
 package com.mihir.assinment.a500px;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,7 +16,6 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,7 +37,6 @@ import com.mihir.assinment.a500px.di.PxServiceModule;
 import com.mihir.assinment.a500px.service.SearchResults;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,26 +55,22 @@ import rx.functions.Action1;
 import static android.os.Build.VERSION.SDK_INT;
 
 public class MainActivity extends AppCompatActivity {
+    public static final int progressType = 0;
     private static final int NUM_COLUMNS = 2;
     private static final String TAG = "Main Activity Error";
+    private static final int PAGE_START = 0;
+    public ProgressDialog progressDialog;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.px_list)
     RecyclerView mPxListView;
-
-    private static final int PAGE_START = 0;
+    PaginationAdapter adapter;
+    List<PxPhoto> photos;
+    String Term = "500px";
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private int TOTAL_PAGES = 3;
     private int currentPage = PAGE_START;
-    PaginationAdapter adapter;
-    List<PxPhoto> photos;
-    String Term = "500px";
-
-    public ProgressDialog progressDialog;
-
-    public static final int progressType = 0;
-
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -95,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             window.setStatusBarColor(activity.getResources().getColor(R.color.colorPrimaryDark));
             // window.setStatusBarColor(Color.parseColor("#55565746"));
         }
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mPxListView.setClickable(true);
         mPxListView.setHasFixedSize(false);
@@ -127,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         mPxListView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                ImageView imageView = (ImageView)view.findViewById(R.id.image);
+                ImageView imageView = view.findViewById(R.id.image);
                 String url = imageView.getContentDescription().toString();
                 Toast.makeText(MainActivity.this,"Url = "+url,Toast.LENGTH_LONG).show();
                 //new DownloadFromURL().execute(url);
@@ -289,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int id) {
                 Dialog f = (Dialog) dialog;
                 EditText description;
-                description = (EditText) f.findViewById(R.id.et_desc);
+                description = f.findViewById(R.id.et_desc);
 
                 Term = (description.getText().toString());
                 new Handler().postDelayed(new Runnable() {
@@ -310,6 +302,42 @@ public class MainActivity extends AppCompatActivity {
 
         android.support.v7.app.AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 0: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                String result = data.getStringExtra("position");
+
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
     }
 
    class DownloadFromURL extends AsyncTask<String, String, String> {
@@ -372,29 +400,4 @@ public class MainActivity extends AppCompatActivity {
            // imageView.setImageDrawable(Drawable.createFromPath(imagePath));
         }
     }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 0: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-
-
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return;
-            }
-
-
-        }
-    }
-
 }

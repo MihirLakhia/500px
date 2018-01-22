@@ -1,14 +1,13 @@
 package com.mihir.assinment.a500px;
 
-import android.app.Notification;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.ContextWrapper;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
-import android.provider.Contacts;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,20 +26,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
+import java.io.Serializable;
 import java.net.URL;
-import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-
-import butterknife.BindView;
-
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Suleiman on 19/10/16.
@@ -50,10 +43,9 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private static final int ITEM = 0;
     private static final int LOADING = 1;
-
-    private List<PxPhoto> photos;
-    private Context context;
     private final Picasso mPicasso;
+    public List<PxPhoto> photos;
+    private Context context;
     private boolean isLoadingAdded = false;
 
     public PaginationAdapter(Context context) {
@@ -96,23 +88,23 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
-        PxPhoto photos = this.photos.get(position);
+        final PxPhoto photo = this.photos.get(position);
 
         switch (getItemViewType(position)) {
             case ITEM:
                 photos_view photos_view = (photos_view) holder;
-               final String url =photos.imageUrl;
-                photos_view.txt_name.setText(photos.name);
-                mPicasso.load(photos.imageUrl)
+                final String url = photo.imageUrl;
+                photos_view.txt_name.setText(photo.name);
+                mPicasso.load(photo.imageUrl)
 //                    .placeholder(R.drawable.placeholder)
                         .into(photos_view.image);
-                photos_view.image.setContentDescription(photos.imageUrl);
-                photos_view.txt_Description.setText(photos.description);
-                photos_view.txt_name.setText(photos.name);
-                photos_view.txt_date.setText(getdate(photos.date));
-                photos_view.txt_vote.setText(photos.vote);
+                photos_view.image.setContentDescription(photo.imageUrl);
+                photos_view.txt_Description.setText(photo.description);
+                photos_view.txt_name.setText(photo.name);
+                photos_view.txt_date.setText(getdate(photo.date));
+                photos_view.txt_vote.setText(photo.vote);
                 photos_view.image.setLongClickable(true);
                 photos_view.image.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
@@ -126,6 +118,18 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 photos_view.image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        Intent i = new Intent(context, FullscreenActivity.class);
+
+                        Bundle b = new Bundle();
+                        b.putSerializable("photo", (Serializable) photos);
+                        b.putInt("position", position);
+                        i.putExtras(b);
+
+                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+//                        i.putParcelableArrayListExtra("photos",  photos);
+//                        ((Activity)context).startActivityForResult(i,1,b);
+                        context.startActivity(i);
 
                     }
                 });
@@ -211,31 +215,6 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
    _________________________________________________________________________________________________
     */
 
-    /**
-     * Main list's content ViewHolder
-     */
-    protected class photos_view extends RecyclerView.ViewHolder {
-        public TextView txt_Description,txt_name,txt_date,txt_vote;
-        public ImageView image;
-
-        public photos_view(View itemView) {
-            super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
-            txt_Description  = (TextView) itemView.findViewById(R.id.txt_desc);
-            txt_name  = (TextView) itemView.findViewById(R.id.txt_Name);
-            txt_date  = (TextView) itemView.findViewById(R.id.txt_Date);
-            txt_vote  = (TextView) itemView.findViewById(R.id.txt_vote);
-        }
-    }
-
-
-    protected class LoadingVH extends RecyclerView.ViewHolder {
-
-        public LoadingVH(View itemView) {
-            super(itemView);
-        }
-    }
-
     final public String getdate(String dateString) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -256,10 +235,34 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return dt;
     }
 
+    /**
+     * Main list's content ViewHolder
+     */
+    protected class photos_view extends RecyclerView.ViewHolder {
+        public TextView txt_Description, txt_name, txt_date, txt_vote;
+        public ImageView image;
+
+        public photos_view(View itemView) {
+            super(itemView);
+            image = itemView.findViewById(R.id.image);
+            txt_Description = itemView.findViewById(R.id.txt_desc);
+            txt_name = itemView.findViewById(R.id.txt_Name);
+            txt_date = itemView.findViewById(R.id.txt_Date);
+            txt_vote = itemView.findViewById(R.id.txt_vote);
+        }
+    }
+
+    protected class LoadingVH extends RecyclerView.ViewHolder {
+
+        public LoadingVH(View itemView) {
+            super(itemView);
+        }
+    }
 
     class DownloadFromURL extends AsyncTask<String, String, String> {
-        private ProgressDialog progressDialog;
         File file;
+        private ProgressDialog progressDialog;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -325,4 +328,5 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         }
     }
+
 }

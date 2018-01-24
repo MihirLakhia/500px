@@ -21,8 +21,10 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -128,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
         });
         photos = new ArrayList<>();
 
-        adapter = new PaginationAdapter(this);
+        adapter = new PaginationAdapter(this, Term);
 
         mPxListView.setItemAnimator(new DefaultItemAnimator());
 
@@ -165,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         // mocking network delay for API call
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -174,13 +175,48 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 1000);
 
+        mPxListView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            GestureDetector gestureDetector = new GestureDetector(getApplicationContext(), new GestureDetector.SimpleOnGestureListener() {
 
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return true;
+                }
+
+            });
+
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+
+                View child = rv.findChildViewUnder(e.getX(), e.getY());
+                if (child != null && gestureDetector.onTouchEvent(e)) {
+                    int position = rv.getChildAdapterPosition(child);
+                    Intent i = new Intent(getApplicationContext(), FullscreenActivity.class);
+                    i.putExtra("Term", Term);
+                    i.putExtra("position", position);
+                    startActivityForResult(i, 1);
+
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        });
 
         //---
     }
 
     public void success(SearchResults results) {
-        adapter = new PaginationAdapter(this);
+        adapter = new PaginationAdapter(this, Term);
         adapter.addAll(results.photos);
         mPxListView.setAdapter(adapter);
     }
@@ -331,7 +367,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
-                String result = data.getStringExtra("position");
+                int position = data.getIntExtra("position", 0);
+                mPxListView.scrollToPosition(position);
 
             }
             if (resultCode == Activity.RESULT_CANCELED) {

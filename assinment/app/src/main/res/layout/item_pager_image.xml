@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/black"
     android:padding="1dip">
 
     <TextView
@@ -10,19 +11,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:layout_margin="10dp"
         android:background="#00000000"
-        android:maxLines="5"
+        android:maxLines="7"
         android:nestedScrollingEnabled="true"
         android:text="@string/Desc"
+        android:textColor="@android:color/background_light"
         tools:targetApi="lollipop" />
 
     <TextView
         android:id="@+id/pager_name"
+        style="@style/TextAppearance.AppCompat.Light.SearchResult.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
+        android:layout_margin="10dp"
         android:background="#00000000"
-        android:text="@string/name" />
+        android:text="@string/name"
+        android:textColor="@android:color/background_light" />
 
     <ImageView
         android:id="@+id/image"

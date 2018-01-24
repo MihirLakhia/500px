@@ -2,11 +2,9 @@ package com.mihir.assinment.a500px;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -26,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,11 +42,13 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int LOADING = 1;
     private final Picasso mPicasso;
     public List<PxPhoto> photos;
+    public String term;
     private Context context;
     private boolean isLoadingAdded = false;
 
-    public PaginationAdapter(Context context) {
+    public PaginationAdapter(Context context, String term) {
         this.context = context;
+        this.term = term;
         this.photos = new ArrayList<>();
         mPicasso = Picasso.with(context);
     }
@@ -113,24 +112,6 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         Log.d("Image url---------",url+"");
                         new DownloadFromURL().execute(url);
                         return false;
-                    }
-                });
-                photos_view.image.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent i = new Intent(context, FullscreenActivity.class);
-
-                        Bundle b = new Bundle();
-                        b.putSerializable("photo", (Serializable) photos);
-                        b.putInt("position", position);
-                        i.putExtras(b);
-
-                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-//                        i.putParcelableArrayListExtra("photos",  photos);
-//                        ((Activity)context).startActivityForResult(i,1,b);
-                        context.startActivity(i);
-
                     }
                 });
 

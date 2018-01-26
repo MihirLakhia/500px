@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     PaginationAdapter adapter;
     List<PxPhoto> photos;
     String Term = "500px";
+    SearchResults results;
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private int TOTAL_PAGES = 3;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        this.toolbar.setTitle("");
         if (SDK_INT > 19) {
 
             AppCompatActivity activity = MainActivity.this;
@@ -194,15 +196,17 @@ public class MainActivity extends AppCompatActivity {
                     Intent i = new Intent(getApplicationContext(), FullscreenActivity.class);
                     i.putExtra("Term", Term);
                     i.putExtra("position", position);
+//Bundle b = new Bundle();
+//b.putSerializable("Results", (Serializable) results);
                     startActivityForResult(i, 1);
 
                 }
-
                 return false;
             }
 
             @Override
             public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
 
             }
 
@@ -241,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action1<SearchResults>() {
                     @Override
                     public void call(SearchResults searchResults) {
+                        results = searchResults;
                         success(searchResults);
                     }
                 }, new Action1<Throwable>() {
@@ -262,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void call(SearchResults searchResults) {
                         //success(searchResults);
+                        results = searchResults;
                         adapter.removeLoadingFooter();
                         adapter.addAll(searchResults.photos);
                     }

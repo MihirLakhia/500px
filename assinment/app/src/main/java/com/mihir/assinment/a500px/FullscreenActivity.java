@@ -45,6 +45,7 @@ public class FullscreenActivity extends AppCompatActivity {
     ViewPager pager;
     List<PxPhoto> photos;
 
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,8 @@ public class FullscreenActivity extends AppCompatActivity {
         position = i.getIntExtra("position", 0);
         Term = i.getStringExtra("Term");
         Log.d("Position", position + "");
-        Toast.makeText(getApplicationContext(), position + "", Toast.LENGTH_LONG).show();
+//        SearchResults results = (SearchResults) i.getSerializableExtra("Results");
+//        Toast.makeText(getApplicationContext(), position + "", Toast.LENGTH_LONG).show();
         ButterKnife.bind(this);
         if (Build.VERSION.SDK_INT > 16) {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,

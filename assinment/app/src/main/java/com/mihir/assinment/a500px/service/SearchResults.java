@@ -1,8 +1,9 @@
 package com.mihir.assinment.a500px.service;
+
 import com.mihir.assinment.a500px.data.PxPhoto;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class SearchResults {
-    public List<PxPhoto> photos;
+    public ArrayList<PxPhoto> photos;
 }

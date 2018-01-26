@@ -6,6 +6,14 @@
     android:background="@android:color/black"
     android:padding="1dip">
 
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/descr_image" />
+
     <TextView
         android:id="@+id/pager_desc"
         android:layout_width="match_parent"
@@ -29,14 +37,6 @@
         android:background="#00000000"
         android:text="@string/name"
         android:textColor="@android:color/background_light" />
-
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/descr_image" />
 
     <ProgressBar
         android:id="@+id/loading"

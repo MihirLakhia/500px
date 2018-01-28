@@ -10,5 +10,8 @@ public interface PxService {
 
     @GET("/v1/photos/search?&rpp=100&image_size=4&consumer_key=" + CONSUMER_KEY)
 //    @GET("/v1/photos/search?image_size=4&consumer_key=" + CONSUMER_KEY)
+    Observable<SearchResults> searchPhotos1(@Query("term") String query);
+
+    @GET("/v1/photos?feature=fresh_today&rpp=100&image_size=4&consumer_key=" + CONSUMER_KEY)
     Observable<SearchResults> searchPhotos(@Query("term") String query);
 }

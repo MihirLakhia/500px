@@ -11,7 +11,9 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -28,6 +30,7 @@ import com.mihir.assinment.a500px.di.PxServiceModule;
 import com.mihir.assinment.a500px.service.SearchResults;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -39,12 +42,16 @@ import static android.os.Build.VERSION.SDK_INT;
 
 public class FullscreenActivity extends AppCompatActivity {
     private static final String TAG = "fullscreen activity";
+    private static final int PAGE_START = 0;
     int position;
-    String Term;
     @BindView(R.id.pager)
     ViewPager pager;
-    List<PxPhoto> photos;
-
+    ArrayList<PxPhoto> photos;
+    String Term = "";
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+    private int TOTAL_PAGES = 3;
+    private int currentPage = PAGE_START;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -55,7 +62,6 @@ public class FullscreenActivity extends AppCompatActivity {
         position = i.getIntExtra("position", 0);
         Term = i.getStringExtra("Term");
         Log.d("Position", position + "");
-//        SearchResults results = (SearchResults) i.getSerializableExtra("Results");
 //        Toast.makeText(getApplicationContext(), position + "", Toast.LENGTH_LONG).show();
         ButterKnife.bind(this);
         if (Build.VERSION.SDK_INT > 16) {
@@ -71,12 +77,65 @@ public class FullscreenActivity extends AppCompatActivity {
                 // window.setStatusBarColor(Color.parseColor("#55565746"));
             }
         }
-        loadFirstPage();
+
+        if (Term.equals("fresh_today"))
+            loadFirstPage();
+        else
+            loadNextPage();
 //        pager.setAdapter(new ImageAdapter(getApplicationContext(), photos));
 
+        GestureDetector gd = new GestureDetector(this, new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent motionEvent) {
+                back();
+                return false;
+            }
 
+            @Override
+            public void onShowPress(MotionEvent motionEvent) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent motionEvent) {
+                return false;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+                return false;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent motionEvent) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+                return false;
+            }
+        });
     }
 
+    private void loadNextPage() {
+        Log.d(TAG, "loadNextPage: " + this.getPackageName());
+        getComponent().repository().getSearchItems(Term)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<SearchResults>() {
+                    @Override
+                    public void call(SearchResults searchResults) {
+                        //success(searchResults);
+                        success(searchResults);
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        failure(throwable.getMessage());
+                    }
+                });
+
+    }
     private ApplicationComponent getComponent() {
         return DaggerApplicationComponent.builder()
                 .pxServiceModule(new PxServiceModule(this))
@@ -94,6 +153,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 .subscribe(new Action1<SearchResults>() {
                     @Override
                     public void call(SearchResults searchResults) {
+//                        results = searchResults;
                         success(searchResults);
                     }
                 }, new Action1<Throwable>() {
@@ -102,7 +162,11 @@ public class FullscreenActivity extends AppCompatActivity {
                         failure(throwable.getMessage());
                     }
                 });
+//        if (currentPage <= TOTAL_PAGES) adapter.addLoadingFooter();
+//        else isLastPage = true;
+
     }
+
 
     public void success(SearchResults results) {
         ImageAdapter adapter = new ImageAdapter(this, results.photos);
@@ -110,15 +174,20 @@ public class FullscreenActivity extends AppCompatActivity {
         pager.setAdapter(adapter);
         pager.setCurrentItem(position);
     }
-    @Override
-    public void onBackPressed() {
 
+    public void back() {
 
         Intent intent = new Intent();
         intent.putExtra("position", pager.getCurrentItem());
         setResult(Activity.RESULT_OK, intent);
         this.finishActivity(1);
+    }
+
+    @Override
+    public void onBackPressed() {
+
         // this.finishActivity(0);//finishing activity
+        back();
         super.onBackPressed();
     }
 
@@ -179,6 +248,7 @@ public class FullscreenActivity extends AppCompatActivity {
             name.setText(photo.name);
             desc.setText(photo.description);
             spinner.setVisibility(View.GONE);
+
             view.addView(imageLayout, 0);
             return imageLayout;
         }
@@ -197,4 +267,5 @@ public class FullscreenActivity extends AppCompatActivity {
             return null;
         }
     }
+
 }

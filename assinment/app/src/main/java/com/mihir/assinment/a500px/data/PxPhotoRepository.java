@@ -24,4 +24,10 @@ public class PxPhotoRepository {
         return mService.searchPhotos(term)
                 .subscribeOn(Schedulers.io());
     }
+
+    @NonNull
+    public Observable<SearchResults> getSearchItems(@NonNull String term) {
+        return mService.searchPhotos1(term)
+                .subscribeOn(Schedulers.io());
+    }
 }

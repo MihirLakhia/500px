@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mPxListView;
     PaginationAdapter adapter;
     List<PxPhoto> photos;
-    String Term = "500px";
+    String Term = "fresh_today";
     SearchResults results;
     private boolean isLoading = false;
     private boolean isLastPage = false;
@@ -196,8 +196,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent i = new Intent(getApplicationContext(), FullscreenActivity.class);
                     i.putExtra("Term", Term);
                     i.putExtra("position", position);
-//Bundle b = new Bundle();
-//b.putSerializable("Results", (Serializable) results);
+                    ArrayList<PxPhoto> p = results.photos;
                     startActivityForResult(i, 1);
 
                 }
@@ -261,15 +260,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadNextPage() {
         Log.d(TAG, "loadNextPage: " + currentPage);
-        getComponent().repository().getItems(Term)
+        getComponent().repository().getSearchItems(Term)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<SearchResults>() {
                     @Override
                     public void call(SearchResults searchResults) {
                         //success(searchResults);
                         results = searchResults;
-                        adapter.removeLoadingFooter();
-                        adapter.addAll(searchResults.photos);
+                        success(searchResults);
                     }
                 }, new Action1<Throwable>() {
                     @Override
@@ -329,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        loadFirstPage();
+                        loadNextPage();
                     }
                 }, 1000);
             }
